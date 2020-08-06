@@ -45,13 +45,16 @@ namespace Projeto.Presentation.Mvc
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
+            app.UseStaticFiles();
+
+            //mapeamento da rota inicial do projeto
+            app.UseEndpoints(
+                endpoints => {
+                    endpoints.MapControllerRoute(
+                        name: "default", //define o padrão de navegação
+                        pattern: "{controller=Home}/{action=Index}/{id?}"
+                        );
                 });
-            });
         }
     }
 }

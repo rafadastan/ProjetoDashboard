@@ -7,5 +7,6 @@ namespace Projeto.Infra.Data.Contracts
 {
     public interface ICategoriaRepository : IBaseRepository<Categoria>
     {
+
     }
 }

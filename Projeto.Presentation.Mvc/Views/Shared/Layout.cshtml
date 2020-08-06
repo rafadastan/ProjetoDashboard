@@ -1,0 +1,31 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Projeto Dashboard</title>
+
+    <link href="~/css/bootstrap.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div class="container mt-3">
+        <ul>
+            <li><a href="/Home/Index">Página inicial</a></li>
+            <li><a href="/Conta/Cadastro">Cadastro Contas</a></li>
+            <li><a href="/Conta/Consulta">Consulta Contas</a></li>
+        </ul>
+        <hr/>
+
+        @RenderBody()
+    </div>
+
+    <script src="~/js/bootstrap.js"></script>
+    <script src="~/js/jquery-3.5.1.min.js"></script>
+</body>
+</html>

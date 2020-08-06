@@ -1,8 +1,11 @@
-﻿using Projeto.Infra.Data.Contexts;
+﻿using Microsoft.EntityFrameworkCore;
+using Projeto.Infra.Data.Contexts;
 using Projeto.Infra.Data.Contracts;
+using Projeto.Infra.Data.DTOs;
 using Projeto.Infra.Data.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Projeto.Infra.Data.Repositories
@@ -17,6 +20,21 @@ namespace Projeto.Infra.Data.Repositories
             : base(dataContext) //construtor da superclasse
         {
             this.dataContext = dataContext;
+        }
+
+        public List<ResumoContaDTO> GetResumoConta()
+        {
+            return dataContext
+                    .Conta
+                    .Include(c => c.Categoria)
+                    .GroupBy(c => c.Categoria.Nome)
+                    .Select(
+                        c => new ResumoContaDTO
+                        {
+                            NomeCategoria = c.Key,
+                            Total = c.Sum(c => c.ValorConta)
+                        }
+                ).ToList();
         }
     }
 }

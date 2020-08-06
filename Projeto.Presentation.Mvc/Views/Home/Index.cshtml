@@ -1,0 +1,45 @@
+﻿@model Projeto.Presentation.Mvc.Models.DashboardViewModel
+
+@{
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<h5>Seja bem vindo ao projeto!</h5>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <h6>Total de Contas</h6>
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Tipo da Conta</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ResumoContas)
+                {
+                    <tr>
+                        <td>@item.NomeCategoria.ToUpper()</td>
+                        <td>
+                            @if (item.NomeCategoria.ToUpper()
+                                  .Contains("RECEITA"))
+                            {
+                                <strong class="text-success">
+                                    @item.Total.ToString("c")
+                                </strong>
+                            }
+                            else
+                            {
+                                <strong class="text-danger">
+                                    @item.Total.ToString("c")
+                                </strong>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
