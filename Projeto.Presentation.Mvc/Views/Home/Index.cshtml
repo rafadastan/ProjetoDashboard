@@ -5,11 +5,10 @@
 }
 
 <h5>Seja bem vindo ao projeto!</h5>
-
+<hr/>
 
 <div class="row">
     <div class="col-md-4">
-        <h6>Total de Contas</h6>
         <table class="table table-hover table-striped table-bordered">
             <thead>
                 <tr>
@@ -41,5 +40,76 @@
                 }
             </tbody>
         </table>
+
+        <div id="graficocontas"></div>
+
     </div>
 </div>
+
+@section scripts{ 
+
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+
+    <script>
+        $(document).ready(
+            function () {
+
+                //requisição AJAX para o HomeController
+                $.ajax({
+                    type: "POST",
+                    url: "/Home/ObterGraficoResumoContas",
+                    data: {},
+                    success: function (result) {
+
+                        //montando o gráfico do highcharts
+                        var array = [];
+
+                        for (var i = 0; i < result.length; i++) {
+                            array.push([
+                                result[i].name, result[i].data[0]
+                            ]);
+                        }
+                        var grafico = new Highcharts.Chart({
+                            chart: {
+                                type: 'pie',
+                                renderTo: 'graficocontas'
+                            },
+                            title: {
+                                verticalAlign: 'middle',
+                                floating: true,
+                                text: 'Resumo de Contas'
+                            },
+                            plotOptions: {
+                                pie: {
+                                    innerSize: '75%',
+                                    dataLabels: {
+                                        enabled: false
+                                    },
+                                    showInLegend: true
+                                }
+                            },
+                            exporting: { enabled: false },
+                            credits: {
+                                enabled: false
+                            },
+                            series: [{
+                                data: array
+                            }],
+                            colors: [
+                                '#dc3545', /* red */
+                                '#28a745', /* green */
+                            ]
+                        });
+
+                    },
+                    error: function (e) {
+                        console.log(e);
+                    }
+                })
+
+            });
+    </script>
+}

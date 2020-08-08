@@ -1,0 +1,107 @@
+﻿@model List<Projeto.Infra.Data.Entities.Conta>
+
+@{
+    ViewData["Title"] = "Consulta";
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<h1>Consulta</h1>
+
+<table id="tabelaContas" class="table table-hover table-striped table-bordered">
+    <thead>
+        <tr>
+            <th>Data da Conta</th>
+            <th>Valor da Conta</th>
+            <th>Categoria</th>
+            <th>Nome da Conta</th>
+            <th>Operações</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.DataConta.ToString("dd/MM/yyyy")</td>
+                <td>@item.ValorConta.ToString("c")</td>
+                <td>
+                    @if (item.Categoria.Nome.ToUpper().Contains("RECEITA"))
+                    {
+                        <strong class="text-success">RECEITA</strong>
+                    }
+                    else
+                    {
+                        <strong class="text-danger">DESPESA</strong>
+                    }
+                </td>
+                <td>@item.NomeConta</td>
+                <td>
+                    <a href="/Conta/Edicao/@item.IdConta"
+                       class="btn btn-sm btn-primary">
+                        Atualizar
+                    </a>
+
+                    <a href="/Conta/Exclusao/@item.IdConta"
+                       onclick="confirm('Deseja excluir a conta selecionada?')"
+                       class="btn btn-sm btn-danger">
+                        Excluir
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="5">
+                Quantidade de contas: <strong>@Model.Count</strong>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+
+@section styles{
+    <link rel="stylesheet" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"
+          type="text/css" />
+}
+
+@section scripts{ 
+    <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#tabelaContas').DataTable({
+                "pageLength": 5,
+                "lengthChange": false,
+                "language": {
+                    "sEmptyTable": "Nenhum registro encontrado",
+                    "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+                    "sInfoEmpty": "Mostrando 0 até 0 de 0 registros",
+                    "sInfoFiltered": "(Filtrados de _MAX_ registros)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "_MENU_ resultados por página",
+                    "sLoadingRecords": "Carregando...",
+                    "sProcessing": "Processando...",
+                    "sZeroRecords": "Nenhum registro encontrado",
+                    "sSearch": "Filtrar registros",
+                    "oPaginate": {
+                        "sNext": "Próximo",
+                        "sPrevious": "Anterior",
+                        "sFirst": "Primeiro",
+                        "sLast": "Último"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": Ordenar colunas de forma ascendente",
+                        "sSortDescending": ": Ordenar colunas de forma descendente"
+                    },
+                    "select": {
+                        "rows": {
+                            "_": "Selecionado %d linhas",
+                            "0": "Nenhuma linha selecionada",
+                            "1": "Selecionado 1 linha"
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

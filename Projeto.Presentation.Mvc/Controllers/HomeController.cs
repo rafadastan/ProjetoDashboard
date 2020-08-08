@@ -32,5 +32,32 @@ namespace Projeto.Presentation.Mvc.Controllers
 
             return View(model);
         }
+
+        public JsonResult ObterGraficoResumoContas()
+        {
+            try
+            {
+                //consultar o total de receitas e despesas
+                var resumoContas = unitOfWork.ContaRepository.GetResumoConta();
+
+                //transferir estes dados para a model do highcharts
+                var model = new List<HighChartsViewModel>();
+                foreach (var item in resumoContas)
+                {
+                    model.Add(new HighChartsViewModel
+                    {
+                        Name = item.NomeCategoria,
+                        Data = new List<int>() { Convert.ToInt32(item.Total) }
+                    });
+                }
+
+                return Json(model);
+            }
+            catch (Exception e)
+            {
+                Response.StatusCode = 500;
+                return Json(e.Message);
+            }
+        }
     }
 }

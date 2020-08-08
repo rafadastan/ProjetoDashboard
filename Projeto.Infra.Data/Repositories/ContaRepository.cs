@@ -36,5 +36,12 @@ namespace Projeto.Infra.Data.Repositories
                         }
                 ).ToList();
         }
+
+        public override List<Conta> GetAll()
+        {
+            return dataContext.Conta
+                .Include(c => c.Categoria)
+                .ToList();
+        }
     }
 }

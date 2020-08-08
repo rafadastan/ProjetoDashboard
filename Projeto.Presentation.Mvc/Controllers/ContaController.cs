@@ -24,6 +24,24 @@ namespace Projeto.Presentation.Mvc.Controllers
             return View(GetContaCadastroModel());
         }
 
+        public IActionResult Consulta()
+        {
+            var result = new List<Conta>();
+
+            try
+            {
+                result = unitOfWork.ContaRepository.GetAll()
+                    .OrderByDescending(c => c.DataConta)
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                TempData["Mensagem"] = e.Message;
+            }
+
+            return View(result);
+        }
+
         [HttpPost]
         public IActionResult Cadastro(ContaCadastroModel model)
         {
@@ -54,10 +72,6 @@ namespace Projeto.Presentation.Mvc.Controllers
             return View(GetContaCadastroModel());
         }
 
-        public IActionResult Consulta()
-        {
-            return View();
-        }
 
         //método para retornar uma instancia da classe model
         //de cadastro de conta com os itens de categoria
