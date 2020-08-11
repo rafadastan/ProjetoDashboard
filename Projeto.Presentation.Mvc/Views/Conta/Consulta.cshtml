@@ -5,7 +5,14 @@
     Layout = "~/Views/Shared/Layout.cshtml";
 }
 
-<h1>Consulta</h1>
+<h5>Consulta</h5>
+
+<p>
+    <a href="/Conta/ExportarPdf" class="btn btn-success btn-sm">
+        Exportar para PDF
+    </a>
+</p>
+
 
 <table id="tabelaContas" class="table table-hover table-striped table-bordered">
     <thead>
@@ -63,7 +70,7 @@
           type="text/css" />
 }
 
-@section scripts{ 
+@section scripts{
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
     <script>

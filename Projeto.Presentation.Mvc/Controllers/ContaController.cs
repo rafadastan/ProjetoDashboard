@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Projeto.Infra.Data.Contracts;
 using Projeto.Infra.Data.Entities;
 using Projeto.Presentation.Mvc.Models;
+using Projeto.Presentation.Mvc.Reports;
+using Projeto.Presentation.Mvc.Reports.Contas;
 
 namespace Projeto.Presentation.Mvc.Controllers
 {
     public class ContaController : Controller
     {
         private readonly IUnitOfWork unitOfWork;
+
+        public object ContasHtmlReport { get; private set; }
 
         public ContaController(IUnitOfWork unitOfWork)
         {
@@ -72,6 +78,38 @@ namespace Projeto.Presentation.Mvc.Controllers
             return View(GetContaCadastroModel());
         }
 
+        public void ExportarPdf()
+        {
+            try
+            {
+                //consultar as contas no banco de dados..
+                var contas = unitOfWork.ContaRepository.GetAll()
+                                .OrderByDescending(c => c.DataConta)
+                                .ToList();
+
+                var totalReceitas = contas
+                    .Where(c => c.Categoria.Nome.ToUpper()
+                    .Contains("RECEITA"))
+                    .Sum(c => c.ValorConta);
+
+                var html = ContaHtmlReport.GetReport(contas);
+
+                var pdf = PdfReport.Convert(html);
+
+                //DOWNLOAD DO PDF..
+                Response.Clear();
+                Response.ContentType = "application/pdf";
+                Response.Headers.Add("content-disposition", "attachment; filename=contas.pdf");
+                Response.Body.WriteAsync(pdf, 0, pdf.Length);
+                Response.Body.Flush();
+                Response.StatusCode = StatusCodes.Status200OK;
+
+            }
+            catch (Exception e)
+            {
+                TempData["Mensagem"] = e.Message;
+            }
+        }
 
         //método para retornar uma instancia da classe model
         //de cadastro de conta com os itens de categoria
