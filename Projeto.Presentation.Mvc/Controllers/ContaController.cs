@@ -78,6 +78,83 @@ namespace Projeto.Presentation.Mvc.Controllers
             return View(GetContaCadastroModel());
         }
 
+        public IActionResult Exclusao(string id)
+        {
+            try
+            {
+                //bucar o registro pelo id
+                var conta = unitOfWork.ContaRepository.GetById(Guid.Parse(id));
+                //excluindo o registro
+                unitOfWork.ContaRepository.Delete(conta);
+                unitOfWork.SaveChanges();
+
+                TempData["Mensagem"] = "Conta excluída com sucesso";
+            }
+            catch (Exception e)
+            {
+                TempData["Mensagem"] = e.Message;
+            }
+
+            return RedirectToAction("Consulta");
+        }
+
+        public IActionResult Edicao(string id)
+        {
+            //criando um objeto da classe model
+            var model = GetContaEdicaoModel();
+
+            try
+            {
+                //buscar no banco de dados a conta pelo id
+                var conta = unitOfWork.ContaRepository.GetById(Guid.Parse(id));
+
+                //preenchendo a model com os dados da conta
+                model.IdConta = conta.IdConta.ToString();
+                model.Nome = conta.NomeConta;
+                model.Valor = conta.ValorConta.ToString();
+                model.Data = conta.DataConta.ToString();
+                model.IdCategoria = conta.IdCategoria.ToString();
+            }
+            catch (Exception e)
+            {
+                TempData["Mensagem"] = e.Message;
+            }
+
+            //enviando a model para a página
+            return View(model);
+        }
+
+        [HttpPost] //recebe o SUBMIT do formulário
+        public IActionResult Edicao(ContaEdicaoModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var conta = new Conta
+                    {
+                        IdConta = Guid.Parse(model.IdConta),
+                        NomeConta = model.Nome,
+                        ValorConta = decimal.Parse(model.Valor),
+                        DataConta = DateTime.Parse(model.Data),
+                        IdCategoria = Guid.Parse(model.IdCategoria)
+                    };
+
+                    unitOfWork.ContaRepository.Update(conta);
+                    unitOfWork.SaveChanges();
+
+                    TempData["Mensagem"] = $"Conta {conta.NomeConta}, atualizada com sucesso.";
+                    return RedirectToAction("Consulta");
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensagem"] = e.Message;
+                }
+            }
+
+            return View(GetContaEdicaoModel());
+        }
+
         public void ExportarPdf()
         {
             try
@@ -116,7 +193,23 @@ namespace Projeto.Presentation.Mvc.Controllers
         private ContaCadastroModel GetContaCadastroModel()
         {
             var model = new ContaCadastroModel();
-            model.ItensCategoria = new List<SelectListItem>();
+            model.ItensCategoria = GetItensCategoria();
+
+            return model;
+        }
+
+        private ContaEdicaoModel GetContaEdicaoModel()
+        {
+            var model = new ContaEdicaoModel();
+            model.ItensCategoria = GetItensCategoria();
+
+            return model;
+        }
+
+        //método para retornar a lista de itens de opção do campo DropDownList
+        private List<SelectListItem> GetItensCategoria()
+        {
+            var itensCategoria = new List<SelectListItem>();
 
             //percorrer as categorias obtidas no banco de dados
             foreach (var categoria in unitOfWork.CategoriaRepository.GetAll())
@@ -127,10 +220,11 @@ namespace Projeto.Presentation.Mvc.Controllers
                     Text = categoria.Nome.ToUpper()
                 };
 
-                model.ItensCategoria.Add(item);
+                itensCategoria.Add(item);
             }
 
-            return model;
+            return itensCategoria;
         }
+
     }
 }

@@ -1,0 +1,59 @@
+﻿@model Projeto.Presentation.Mvc.Models.ContaEdicaoModel
+
+@{
+    Layout = "~/Views/Shared/Layout.cshtml";
+}
+
+<h5>Atualização de Conta</h5>
+
+@using (Html.BeginForm())
+{
+    <!-- campo oculto -->
+    @Html.HiddenFor(model => model.IdConta)
+
+    <div class="form-group">
+        <label>Nome da Conta:</label>
+        @Html.TextBoxFor(model => model.Nome,
+            new { @class = "form-control col-md-4" })
+        <span class="text-danger">
+            @Html.ValidationMessageFor(model => model.Nome)
+        </span>
+    </div>
+
+    <div class="form-group">
+        <label>Valor da Conta:</label>
+        @Html.TextBoxFor(model => model.Valor,
+            new { @class = "form-control col-md-4" })
+        <span class="text-danger">
+            @Html.ValidationMessageFor(model => model.Valor)
+        </span>
+    </div>
+
+    <div class="form-group">
+        <label>Data da Conta:</label>
+        @Html.TextBoxFor(model => model.Data,
+            new { @class = "form-control col-md-4" })
+        <span class="text-danger">
+            @Html.ValidationMessageFor(model => model.Data)
+        </span>
+    </div>
+
+    <div class="form-group">
+        <label>Categoria:</label>
+        @Html.DropDownListFor(model => model.IdCategoria,
+            Model.ItensCategoria, "Escolha uma opção",
+            new { @class = "form-control col-md-4", @type = "date" })
+        <span class="text-danger">
+            @Html.ValidationMessageFor(model => model.IdCategoria)
+        </span>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Salvar Alterações"
+               class="btn btn-success" />
+    </div>
+
+    <br />
+
+    <h5 class="text-secondary">@TempData["Mensagem"]</h5>
+}
