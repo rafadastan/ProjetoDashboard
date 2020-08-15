@@ -7,17 +7,30 @@
 
 <h5>Consulta</h5>
 
-<div>
-    <strong>@TempData["Mensagem"]</strong>
-</div>
-
-<p>
-    <a href="/Conta/ExportarPdf" class="btn btn-success btn-sm">
-        Exportar para PDF
-    </a>
-</p>
-
-
+@using (Html.BeginForm())
+{
+    <div class="row">
+        <div class="col-md-3">
+            <label>Data de:</label>
+            <input type="date" name="DataMin" class="form-control"
+                   value="@TempData["DataMin"]" />
+        </div>
+        <div class="col-md-3">
+            <label>Até:</label>
+            <input type="date" name="DataMax" class="form-control"
+                   value="@TempData["DataMax"]" />
+        </div>
+        <div class="col-md-6">
+            <div style="margin-top: 30px;">
+                <input type="submit" value="Pesquisar Contas" class="btn btn-success" />
+                <a href="/Conta/ExportarPdf" class="btn btn-secondary">
+                    Exportar para PDF
+                </a>
+            </div>
+        </div>
+    </div>
+}
+<br />
 <table id="tabelaContas" class="table table-hover table-striped table-bordered">
     <thead>
         <tr>
@@ -52,7 +65,7 @@
                     </a>
 
                     <a href="/Conta/Exclusao/@item.IdConta"
-                       onclick="confirm('Deseja excluir a conta selecionada?')"
+                       onclick="return confirm('Deseja excluir a conta selecionada?');"
                        class="btn btn-sm btn-danger">
                         Excluir
                     </a>
@@ -69,12 +82,16 @@
     </tfoot>
 </table>
 
+<!-- Adicionando a seção para CSS -->
 @section styles{
+
     <link rel="stylesheet" href="//cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"
           type="text/css" />
 }
 
+<!-- Adicionando a seção para JavaScript -->
 @section scripts{
+
     <script src="//cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
 
     <script>

@@ -43,5 +43,29 @@ namespace Projeto.Infra.Data.Repositories
                 .Include(c => c.Categoria)
                 .ToList();
         }
+
+        public List<Conta> GetByDatas(DateTime dataMin, DateTime dataMax)
+        {
+            return dataContext.Conta
+                .Include(c => c.Categoria)
+                .Where(c => c.DataConta >= dataMin && c.DataConta <= dataMax)
+                .ToList();
+        }
+
+        public List<ResumoContaDTO> GetResumoConta(DateTime dataMin, DateTime dataMax)
+        {
+            return dataContext
+                    .Conta
+                    .Include(c => c.Categoria)
+                    .Where(c => c.DataConta >= dataMin && c.DataConta <= dataMax)
+                    .GroupBy(c => c.Categoria.Nome)
+                    .Select(
+                        c => new ResumoContaDTO
+                        {
+                            NomeCategoria = c.Key,
+                            Total = c.Sum(c => c.ValorConta)
+                        }
+                ).ToList();
+        }
     }
 }

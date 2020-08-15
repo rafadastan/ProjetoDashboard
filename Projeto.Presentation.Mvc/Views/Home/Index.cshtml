@@ -1,52 +1,50 @@
-﻿@model Projeto.Presentation.Mvc.Models.DashboardViewModel
-
-@{
+﻿@{
     Layout = "~/Views/Shared/Layout.cshtml";
 }
-
-<h5>Seja bem vindo ao projeto!</h5>
-<hr/>
-
 <div class="row">
-    <div class="col-md-4">
-        <table class="table table-hover table-striped table-bordered">
+    <div class="col-md-6">
+
+        <h5>Pesquisar Resumo de Contas por Período</h5>
+        <hr />
+
+        <div class="row">
+            <div class="col-md-6">
+                <label>Data de:</label>
+                <input type="date" class="form-control" id="DataMin" />
+            </div>
+            <div class="col-md-6">
+                <label>Até:</label>
+                <input type="date" class="form-control" id="DataMax" />
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12">
+                <input type="button" id="btnpesquisa" class="btn btn-success"
+                       value="Pesquisar Contas" />
+            </div>
+        </div>
+        <br />
+        <table id="tabela" class="table table-hover table-striped table-bordered">
             <thead>
-                <tr>
+                <tr class="bg-dark text-white">
                     <th>Tipo da Conta</th>
                     <th>Total</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.ResumoContas)
-                {
-                    <tr>
-                        <td>@item.NomeCategoria.ToUpper()</td>
-                        <td>
-                            @if (item.NomeCategoria.ToUpper()
-                                  .Contains("RECEITA"))
-                            {
-                                <strong class="text-success">
-                                    @item.Total.ToString("c")
-                                </strong>
-                            }
-                            else
-                            {
-                                <strong class="text-danger">
-                                    @item.Total.ToString("c")
-                                </strong>
-                            }
-                        </td>
-                    </tr>
-                }
             </tbody>
+            <tfoot>
+            </tfoot>
         </table>
-
+    </div>
+    <div class="col-md-6">
         <div id="graficocontas"></div>
-
     </div>
 </div>
 
-@section scripts{ 
+<!-- criando conteudo javascript direcionado para seção -->
+@section scripts{
 
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/highcharts-3d.js"></script>
@@ -54,6 +52,8 @@
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
 
     <script>
+
+        //iniciando o jquery..
         $(document).ready(
             function () {
 
@@ -63,53 +63,122 @@
                     url: "/Home/ObterGraficoResumoContas",
                     data: {},
                     success: function (result) {
-
-                        //montando o gráfico do highcharts
-                        var array = [];
-
-                        for (var i = 0; i < result.length; i++) {
-                            array.push([
-                                result[i].name, result[i].data[0]
-                            ]);
-                        }
-                        var grafico = new Highcharts.Chart({
-                            chart: {
-                                type: 'pie',
-                                renderTo: 'graficocontas'
-                            },
-                            title: {
-                                verticalAlign: 'middle',
-                                floating: true,
-                                text: 'Resumo de Contas'
-                            },
-                            plotOptions: {
-                                pie: {
-                                    innerSize: '75%',
-                                    dataLabels: {
-                                        enabled: false
-                                    },
-                                    showInLegend: true
-                                }
-                            },
-                            exporting: { enabled: false },
-                            credits: {
-                                enabled: false
-                            },
-                            series: [{
-                                data: array
-                            }],
-                            colors: [
-                                '#dc3545', /* red */
-                                '#28a745', /* green */
-                            ]
-                        });
-
+                        carregarGrafico(result);
+                        carregarTabela(result);
                     },
                     error: function (e) {
                         console.log(e);
                     }
                 })
 
+                //criando um evento para quando o botão
+                //de pesquisa for clicado pelo usuário
+                $("#btnpesquisa").click(function () {
+                    //requisição AJAX para o HomeController
+                    $.ajax({
+                        type: "POST",
+                        url: "/Home/ObterGraficoResumoContasPorData",
+                        data: {
+                            DataMin: $("#DataMin").val(),
+                            DataMax: $("#DataMax").val()
+                        },
+                        success: function (result) {
+                            carregarGrafico(result);
+                            carregarTabela(result);
+                        },
+                        error: function (e) {
+                            console.log(e);
+                        }
+                    })
+                });
+
             });
+
+        //função para montar o gráfico do highcharts
+        function carregarGrafico(result) {
+            //montando o gráfico do highcharts
+            var array = [];
+
+            for (var i = 0; i < result.length; i++) {
+                array.push([
+                    result[i].name, result[i].data[0]
+                ]);
+            }
+            var grafico = new Highcharts.Chart({
+                chart: {
+                    type: 'pie',
+                    renderTo: 'graficocontas'
+                },
+                title: {
+                    verticalAlign: 'middle',
+                    floating: true,
+                    text: 'Resumo de Contas'
+                },
+                plotOptions: {
+                    pie: {
+                        innerSize: '75%',
+                        dataLabels: {
+                            enabled: false
+                        },
+                        showInLegend: true
+                    }
+                },
+                exporting: { enabled: false },
+                credits: {
+                    enabled: false
+                },
+                series: [{
+                    data: array
+                }],
+                colors: [
+                    '#dc3545', /* red */
+                    '#28a745', /* green */
+                ]
+            });
+        }
+
+        //função para carregar os dados na tabela
+        function carregarTabela(result) {
+
+            var contentBody = "";
+            var contentFooter = "";
+
+            var totalReceitas = 0;
+            var totalDespesas = 0;
+
+            for (var i = 0; i < result.length; i++) {
+
+                if (result[i].name == 'Receita') {
+                    contentBody += "<tr class='bg-success text-white'>";
+                    totalReceitas = result[i].data[0];
+                }
+                else {
+                    contentBody += "<tr class='bg-danger text-white'>";
+                    totalDespesas = result[i].data[0];
+                }
+
+                contentBody += "<td><strong>" + result[i].name + "</strong></td>";
+                contentBody += "<td><strong>" + result[i].data[0] + "</strong></td>";
+                contentBody += "</tr>";
+            }
+
+            var saldo = (totalReceitas - totalDespesas)
+
+            contentFooter += "<tr class='bg-secondary text-white'>";
+            contentFooter += "<td><strong>Saldo</strong></td>"
+            contentFooter += "<td><strong>" + saldo + "</strong></td>";
+            contentFooter += "</tr>";
+
+            var situacao = saldo > 0 ? "Positivo" : saldo == 0 ? "Nulo" : "Devedor";
+
+            contentFooter += "<tr class='bg-secondary text-white'>";
+            contentFooter += "<td><strong>Situação</strong></td>"
+            contentFooter += "<td><strong>" + situacao + "</strong></td>";
+            contentFooter += "</tr>";
+
+            $("#tabela tbody").html(contentBody);
+            $("#tabela tfoot").html(contentFooter);
+        }
+
     </script>
 }

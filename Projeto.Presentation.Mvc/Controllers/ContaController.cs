@@ -42,7 +42,37 @@ namespace Projeto.Presentation.Mvc.Controllers
             }
             catch (Exception e)
             {
-                TempData["Mensagem"] = e.Message;
+                TempData["MensagemErro"] = e.Message;
+            }
+
+            return View(result);
+        }
+
+        [HttpPost]
+        public IActionResult Consulta(string DataMin, string DataMax)
+        {
+            var result = new List<Conta>();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(DataMin) && !string.IsNullOrEmpty(DataMax))
+                {
+                    result = unitOfWork.ContaRepository
+                            .GetByDatas(DateTime.Parse(DataMin), DateTime.Parse(DataMax))
+                            .OrderByDescending(c => c.DataConta)
+                            .ToList();
+
+                    TempData["DataMin"] = DataMin;
+                    TempData["DataMax"] = DataMax;
+                }
+                else
+                {
+                    throw new Exception("Por favor, informe o período de datas para pesquisa.");
+                }
+            }
+            catch (Exception e)
+            {
+                TempData["MensagemErro"] = e.Message;
             }
 
             return View(result);
@@ -67,12 +97,12 @@ namespace Projeto.Presentation.Mvc.Controllers
                     unitOfWork.SaveChanges();
 
 
-                    TempData["Mensagem"] = $"Conta {conta.NomeConta}, cadastrado com sucesso.";
+                    TempData["MensagemSucesso"] = $"Conta {conta.NomeConta}, cadastrado com sucesso.";
                     ModelState.Clear(); //limpar os campos do formulário
                 }
                 catch (Exception e)
                 {
-                    TempData["Mensagem"] = e.Message;
+                    TempData["MensagemErro"] = e.Message;
                 }
             }
             return View(GetContaCadastroModel());
@@ -88,11 +118,11 @@ namespace Projeto.Presentation.Mvc.Controllers
                 unitOfWork.ContaRepository.Delete(conta);
                 unitOfWork.SaveChanges();
 
-                TempData["Mensagem"] = "Conta excluída com sucesso";
+                TempData["MensagemSucesso"] = "Conta excluída com sucesso";
             }
             catch (Exception e)
             {
-                TempData["Mensagem"] = e.Message;
+                TempData["MensagemErro"] = e.Message;
             }
 
             return RedirectToAction("Consulta");
@@ -117,7 +147,7 @@ namespace Projeto.Presentation.Mvc.Controllers
             }
             catch (Exception e)
             {
-                TempData["Mensagem"] = e.Message;
+                TempData["MensagemErro"] = e.Message;
             }
 
             //enviando a model para a página
@@ -143,12 +173,12 @@ namespace Projeto.Presentation.Mvc.Controllers
                     unitOfWork.ContaRepository.Update(conta);
                     unitOfWork.SaveChanges();
 
-                    TempData["Mensagem"] = $"Conta {conta.NomeConta}, atualizada com sucesso.";
+                    TempData["MensagemSucesso"] = $"Conta {conta.NomeConta}, atualizada com sucesso.";
                     return RedirectToAction("Consulta");
                 }
                 catch (Exception e)
                 {
-                    TempData["Mensagem"] = e.Message;
+                    TempData["MensagemErro"] = e.Message;
                 }
             }
 
@@ -184,7 +214,7 @@ namespace Projeto.Presentation.Mvc.Controllers
             }
             catch (Exception e)
             {
-                TempData["Mensagem"] = e.Message;
+                TempData["MensagemErro"] = e.Message;
             }
         }
 
